@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    
+    <!-- For listing installed apps and their icons -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <!-- Internet for Supabase sync -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Step counter -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
+
+    <!-- Usage Stats (app monitoring) - requires special permission grant -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Overlay window (lock screen) -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Foreground service -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
+
+    <!-- Boot receiver (auto-start service) -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <!-- Notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Camera for push-up detection -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <!-- Vibration for haptics -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <application
+        android:name=".LifeForgeApp"
+        android:allowBackup="true"
+        android:largeHeap="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.LifeForge"
+        tools:targetApi="34">
+
+        <!-- Main Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.LifeForge.Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Lock Overlay Activity - shown when blocked app is detected -->
+        <activity
+            android:name=".ui.screens.overlay.LockOverlayActivity"
+            android:theme="@style/Theme.LifeForge.Overlay"
+            android:excludeFromRecents="true"
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true"
+            android:launchMode="singleInstance"
+            android:exported="false" />
+
+        <!-- Accessibility Service - detects foreground app -->
+        <service
+            android:name=".accessibility.AppDetectorService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:enabled="true"
+            android:directBootAware="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_config" />
+        </service>
+
+        <!-- Foreground Service for continuous monitoring -->
+        <service
+            android:name=".service.AppMonitorService"
+            android:foregroundServiceType="specialUse"
+            android:directBootAware="true"
+            android:exported="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_TYPE"
+                android:value="This service monitors app usage to help users stay focused and avoid distractions as part of the LifeForge habit-building system." />
+            <!-- MIUI Hint for persistence -->
+            <meta-data android:name="android.persistent" android:value="true" />
+        </service>
+
+        <!-- Step Counter Service -->
+        <service
+            android:name=".service.StepCounterService"
+            android:foregroundServiceType="health"
+            android:exported="false" />
+
+        <!-- Boot Receiver - restart services on boot -->
+        <receiver
+            android:name=".service.BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Activity Transition Receiver -->
+        <receiver
+            android:name=".service.ActivityTransitionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.lifeforge.app.ACTION_ACTIVITY_TRANSITION" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

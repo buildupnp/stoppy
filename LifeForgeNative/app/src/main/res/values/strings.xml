@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Stoppy</string>
+    <string name="accessibility_service_description">Stoppy needs this permission to detect when blocked apps are opened and show the lock screen. This helps you stay focused and earn screen time through exercise.</string>
+    <string name="camera_permission_required">Camera permission required to track workouts</string>
+    <string name="pushup_instruction">Place phone on floor &amp; back away</string>
+    <string name="squat_instruction">Stand 6-8 feet away from camera</string>
+    <string name="finish_and_save">Finish &amp; Save</string>
+    <string name="model_load_error">Failed to load AI model. Check your connection or assets.</string>
+
+    <!-- Permissions -->
+    <string name="permission_title_overlay">Display over other apps</string>
+    <string name="permission_desc_overlay">Required to show the lock screen when you open a blocked app.</string>
+    <string name="permission_title_usage">Usage Access</string>
+    <string name="permission_desc_usage">Required to monitor which app is currently open.</string>
+    <string name="permission_title_battery">Ignore Battery Optimization</string>
+    <string name="permission_desc_battery">Required to keep the app running in the background.</string>
+    <string name="permission_grant_btn">Grant Permission</string>
+    <string name="permission_autostart_msg">On Xiaomi devices, please enable \'Autostart\' for Stoppy in the next screen.</string>
+    <string name="permission_rationale_runtime">Stoppy needs these permissions to track your workouts and protect your focus.</string>
+
+    <!-- Services -->
+    <string name="step_tracking_title">Step Tracking Active</string>
+    <string name="step_tracking_desc">Earning coins from your steps!</string>
+    <string name="step_channel_name">Step Tracking</string>
+    <string name="step_channel_desc">Tracking your steps</string>
+</resources>

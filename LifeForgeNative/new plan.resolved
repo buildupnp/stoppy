@@ -1,0 +1,36 @@
+# Implementation Plan: UI Polish & Sign-Up Validation
+
+## User Review Required
+> [!IMPORTANT]
+> I will be refactoring the "Your Apps" / "Managed Apps" sections in Dashboard and Guardian to match specific styles requested (Forge Push-up style and Guardian Shield style respectively). This will change the layout of these lists significantly.
+
+## Proposed Changes
+
+### [Dashboard]
+#### [MODIFY] [DashboardScreen.kt](file:///d:/stoppy/LifeForgeNative/app/src/main/java/com/lifeforge/app/ui/screens/dashboard/DashboardScreen.kt)
+- **Daily Insight**: Remove the top header Row (Icon + "DAILY INSIGHT"). Keep only the quote text centered in the transparent GlassCard.
+- **Your Apps**:
+    - Improve spacing for app icons/details.
+    - get the glow or the glass refernce from the "Shield offilne" card style don't change the layout only the glass logic copy it not the layout 
+
+### [Guardian]
+#### [MODIFY] [GuardianScreen.kt](file:///d:/stoppy/LifeForgeNative/app/src/main/java/com/lifeforge/app/ui/screens/guardian/GuardianScreen.kt)
+- **Managed Apps**: Update the container/items to use the "Shield Offline" card style (`GlassCard -> Row(IconBox -> TextColumn -> Action)`).
+
+### [Settings]
+#### [MODIFY] [SettingsScreen.kt](file:///d:/stoppy/LifeForgeNative/app/src/main/java/com/lifeforge/app/ui/screens/settings/SettingsScreen.kt)
+- **All Settings Boxes**: Refactor settings items to match the "Shield Offline" card style.
+
+### [Auth]
+#### [MODIFY] [AuthScreen.kt](file:///d:/stoppy/LifeForgeNative/app/src/main/java/com/lifeforge/app/ui/screens/auth/AuthScreen.kt)
+- **Validation**: Implement robust input validation before calling `viewModel.signUp`.
+    - Check for spaces in email and show "No spaces allowed".
+    - Check for empty fields.
+    - Check for simple email regex.
+- **Error Handling**: Display these validation errors via the existing Snackbar or a new `isError` state on text fields for better UX.
+
+## Verification Plan
+- **Daily Insight**: Verify only the quote appears in a clean box.
+- **Your Apps**: Verify the style matches the Forge cards.
+- **Guardian/Settings**: Verify cards look consistent with the Shield Status card.
+- **Sign Up**: Try entering " " in email -> Expect "No spaces allowed" formatted error. Try duplicate ID -> Expect Supabase error to be shown gracefully.
