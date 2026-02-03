@@ -77,19 +77,7 @@ class MainActivity : ComponentActivity() {
     }
     
     private fun checkRuntimePermissions(): Boolean {
-        val permissions = mutableListOf<String>()
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
-            permissions.add(android.Manifest.permission.ACTIVITY_RECOGNITION)
-        }
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            permissions.add(android.Manifest.permission.POST_NOTIFICATIONS)
-        }
-        // Add Camera if not already granted (for AI Workout)
-        permissions.add(android.Manifest.permission.CAMERA)
-
-        val missing = permissions.filter {
-            androidx.core.content.ContextCompat.checkSelfPermission(this, it) != android.content.pm.PackageManager.PERMISSION_GRANTED
-        }
+        val missing = com.lifeforge.app.util.PermissionHelper.getMissingRuntimePermissions(this)
         
         if (missing.isNotEmpty()) {
             requestPermissions(missing.toTypedArray(), 1001)

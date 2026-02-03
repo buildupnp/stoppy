@@ -17,6 +17,9 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -29,6 +32,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.lifeforge.app.ui.screens.dashboard.DashboardScreen
 import com.lifeforge.app.ui.screens.forge.ForgeScreen
@@ -41,6 +45,8 @@ import com.lifeforge.app.ui.theme.Accent
 import com.lifeforge.app.ui.theme.CardDark
 import com.lifeforge.app.ui.theme.Primary
 import com.lifeforge.app.ui.theme.TextSecondary
+import com.lifeforge.app.util.CoreServiceStarter
+import com.lifeforge.app.util.PermissionHelper
 
 sealed class BottomNavItem(
     val route: String,
@@ -76,6 +82,7 @@ sealed class BottomNavItem(
 
 @Composable
 fun MainScreen() {
+    val context = LocalContext.current
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -88,6 +95,12 @@ fun MainScreen() {
     )
     
     val showBottomBar = currentDestination?.route != "ai_workout"
+
+    LaunchedEffect(Unit) {
+        if (PermissionHelper.hasAllPermissions(context)) {
+            CoreServiceStarter.startCoreServices(context)
+        }
+    }
     
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -113,8 +126,10 @@ fun MainScreen() {
                                 navController.navigate(item.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         inclusive = false
+                                        saveState = true
                                     }
                                     launchSingleTop = true
+                                    restoreState = true
                                 }
                             },
                             colors = NavigationBarItemDefaults.colors(
@@ -133,7 +148,11 @@ fun MainScreen() {
         NavHost(
             navController = navController,
             startDestination = BottomNavItem.Home.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            enterTransition = { fadeIn(animationSpec = tween(180)) },
+            exitTransition = { fadeOut(animationSpec = tween(180)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(180)) },
+            popExitTransition = { fadeOut(animationSpec = tween(180)) }
         ) {
             composable(BottomNavItem.Home.route) {
                 DashboardScreen(

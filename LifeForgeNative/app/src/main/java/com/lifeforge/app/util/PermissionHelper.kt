@@ -1,8 +1,10 @@
 package com.lifeforge.app.util
 
+import android.app.AppOpsManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Process
 
 object PermissionHelper {
 
@@ -16,13 +18,13 @@ object PermissionHelper {
         // 3. Usage Stats
         if (!hasUsageStatsPermission(context)) return false
         
-        // 4. Battery - only strictly required if we want to ensure background survival
-        if (!isIgnoringBatteryOptimizations(context)) return false
-        
-        // 5. Xiaomi - only if Xiaomi
-        if (XiaomiPermissionHelper.isXiaomiDevice() && !isXiaomiAutostartShown(context)) return false
-        
-        // 6. Accessibility
+        // 4. Xiaomi - only if Xiaomi (MIUI requires extra steps to keep services alive)
+        if (XiaomiPermissionHelper.isXiaomiDevice()) {
+            if (!isXiaomiAutostartShown(context)) return false
+            if (!isXiaomiPopupShown(context)) return false
+        }
+
+        // 5. Accessibility
         if (!isAccessibilityServiceEnabled(context)) return false
         
         return true
@@ -33,10 +35,10 @@ object PermissionHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             permissions.add(android.Manifest.permission.ACTIVITY_RECOGNITION)
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissions.add(android.Manifest.permission.POST_NOTIFICATIONS)
+        // POST_NOTIFICATIONS is optional for core functionality; do not block the app on it.
+        if (context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
+            permissions.add(android.Manifest.permission.CAMERA)
         }
-        permissions.add(android.Manifest.permission.CAMERA)
 
         return permissions.filter {
             androidx.core.content.ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
@@ -45,32 +47,40 @@ object PermissionHelper {
 
     fun hasUsageStatsPermission(context: Context): Boolean {
         return try {
-            val usageStatsManager = context.getSystemService(Context.USAGE_STATS_SERVICE) as android.app.usage.UsageStatsManager
-            val currentTime = System.currentTimeMillis()
-            val stats = usageStatsManager.queryUsageStats(
-                android.app.usage.UsageStatsManager.INTERVAL_DAILY,
-                currentTime - 1000 * 60,
-                currentTime
-            )
-            stats?.isNotEmpty() == true
+            val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+            val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                appOps.unsafeCheckOpNoThrow(
+                    AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    Process.myUid(),
+                    context.packageName
+                )
+            } else {
+                appOps.checkOpNoThrow(
+                    AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    Process.myUid(),
+                    context.packageName
+                )
+            }
+            mode == AppOpsManager.MODE_ALLOWED
         } catch (e: Exception) {
             false
         }
-    }
-
-    fun isIgnoringBatteryOptimizations(context: Context): Boolean {
-        val pm = context.getSystemService(android.os.PowerManager::class.java)
-        return pm.isIgnoringBatteryOptimizations(context.packageName)
     }
 
     fun isXiaomiAutostartShown(context: Context): Boolean {
         val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         return prefs.getBoolean("xiaomi_autostart_shown", false)
     }
+
+    fun isXiaomiPopupShown(context: Context): Boolean {
+        val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        return prefs.getBoolean("xiaomi_popup_shown", false)
+    }
     
     fun isAccessibilityServiceEnabled(context: Context): Boolean {
         val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
         val enabledServices = am.getEnabledAccessibilityServiceList(android.accessibilityservice.AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
-        return enabledServices.any { it.id.contains(context.packageName) }
+        val expectedId = "${context.packageName}/${com.lifeforge.app.accessibility.AppDetectorService::class.java.name}"
+        return enabledServices.any { it.id == expectedId || it.id.contains(context.packageName) }
     }
 }

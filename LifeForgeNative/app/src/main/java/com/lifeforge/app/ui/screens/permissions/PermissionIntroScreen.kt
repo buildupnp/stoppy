@@ -30,6 +30,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lifeforge.app.ui.components.GradientButton
 import com.lifeforge.app.ui.theme.*
+import com.lifeforge.app.util.CoreServiceStarter
 import com.lifeforge.app.util.XiaomiPermissionHelper
 
 @Composable
@@ -42,6 +43,7 @@ fun PermissionIntroScreen(
     val currentPermission by viewModel.currentPermission.collectAsState()
     val allGranted by viewModel.allGranted.collectAsState()
     var showRestrictedDialog by remember { mutableStateOf(false) }
+    var startedServices by remember { mutableStateOf(false) }
 
     // Observe lifecycle effectively to re-check permissions when coming back from Settings
     DisposableEffect(lifecycleOwner) {
@@ -62,7 +64,9 @@ fun PermissionIntroScreen(
     }
 
     LaunchedEffect(allGranted) {
-        if (allGranted) {
+        if (allGranted && !startedServices) {
+            CoreServiceStarter.startCoreServices(context)
+            startedServices = true
             onAllGranted()
         }
     }

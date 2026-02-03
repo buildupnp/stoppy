@@ -9,8 +9,14 @@ import android.os.Build
 object XiaomiPermissionHelper {
 
     fun isXiaomiDevice(): Boolean {
-        val manufacturers = listOf("xiaomi", "redmi", "poco")
-        return manufacturers.any { Build.MANUFACTURER.lowercase().contains(it) }
+        val keys = listOf("xiaomi", "redmi", "poco")
+        val manufacturer = Build.MANUFACTURER.lowercase()
+        val brand = Build.BRAND.lowercase()
+        val device = Build.DEVICE.lowercase()
+        val model = Build.MODEL.lowercase()
+        return listOf(manufacturer, brand, device, model).any { value ->
+            keys.any { key -> value.contains(key) }
+        }
     }
 
     fun getAutostartIntent(context: Context): Intent? {

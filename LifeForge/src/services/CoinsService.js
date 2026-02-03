@@ -18,7 +18,18 @@ export const getBalance = async (userId) => {
             .eq('user_id', userId)
             .single();
 
-        if (error) throw error;
+        if (error && error.code !== 'PGRST116') throw error;
+
+        if (!data) {
+            return {
+                data: {
+                    balance: 0,
+                    total_earned: 0,
+                    total_spent: 0,
+                },
+                error: null
+            };
+        }
         return { data, error: null };
     } catch (error) {
         console.error('Error fetching balance:', error);
@@ -39,6 +50,7 @@ export const earnCoins = async (userId, amount, source, description = '') => {
         const { data: currentBalance } = await getBalance(userId);
         const newBalance = (currentBalance?.balance || 0) + amount;
         const newTotalEarned = (currentBalance?.total_earned || 0) + amount;
+        const newTotalSpent = currentBalance?.total_spent || 0;
 
         const { error: balanceError } = await supabase
             .from('coin_balances')
@@ -46,6 +58,7 @@ export const earnCoins = async (userId, amount, source, description = '') => {
                 user_id: userId,
                 balance: newBalance,
                 total_earned: newTotalEarned,
+                total_spent: newTotalSpent,
                 updated_at: new Date().toISOString(),
             });
 
@@ -81,7 +94,10 @@ export const earnCoins = async (userId, amount, source, description = '') => {
 export const spendCoins = async (userId, amount, appName, minutes) => {
     try {
         // 1. Check sufficient balance
-        const { data: currentBalance } = await getBalance(userId);
+        const { data: currentBalance, error: balanceError } = await getBalance(userId);
+        if (balanceError) {
+            return { data: null, error: balanceError };
+        }
         if (!currentBalance || currentBalance.balance < amount) {
             return { data: null, error: { message: 'Insufficient coins' } };
         }

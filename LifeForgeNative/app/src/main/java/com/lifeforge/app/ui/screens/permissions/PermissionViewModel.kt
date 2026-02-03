@@ -93,7 +93,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
             }
 
             // 5.1 Xiaomi Background Popups (Critical)
-            if (XiaomiPermissionHelper.isXiaomiDevice() && !isXiaomiPopupShown(context)) {
+            if (XiaomiPermissionHelper.isXiaomiDevice() && !com.lifeforge.app.util.PermissionHelper.isXiaomiPopupShown(context)) {
                 _currentPermission.value = PermissionState(
                     type = PermissionType.XIAOMI_POPUP,
                     isGranted = false,
@@ -134,8 +134,5 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
          prefs.edit().putBoolean("xiaomi_popup_shown", true).apply()
     }
 
-    private fun isXiaomiPopupShown(context: Context): Boolean {
-         val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-         return prefs.getBoolean("xiaomi_popup_shown", false)
-    }
+    // Xiaomi popup flag is stored in app_prefs and read via PermissionHelper
 }

@@ -7,6 +7,7 @@ import android.media.AudioManager
 import android.media.ToneGenerator
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.Handler
@@ -15,6 +16,8 @@ import android.util.Log
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
+import android.net.Uri
+import android.provider.Settings
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -282,8 +285,37 @@ fun AIWorkoutScreen(
     }
 
     if (!hasCameraPermission) {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
-            Text("Camera Permission Required", color = Color.White)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+                .padding(24.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Camera Permission Required", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    "Enable camera access to track reps. You can still close this screen.",
+                    color = Color.White.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+                NeonButton(text = "GRANT PERMISSION") { launcher.launch(Manifest.permission.CAMERA) }
+                Spacer(modifier = Modifier.height(12.dp))
+                TextButton(onClick = {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    context.startActivity(intent)
+                }) {
+                    Text("Open App Settings", color = Color.White.copy(alpha = 0.8f))
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                TextButton(onClick = onClose) {
+                    Text("Close", color = Color.White.copy(alpha = 0.6f))
+                }
+            }
         }
     } else {
         Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {

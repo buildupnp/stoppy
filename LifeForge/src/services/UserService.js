@@ -11,7 +11,17 @@ export const getProfile = async (userId) => {
             .eq('id', userId)
             .single();
 
-        if (error) throw error;
+        if (error && error.code !== 'PGRST116') throw error;
+
+        if (!data) {
+            return {
+                data: {
+                    id: userId,
+                    full_name: 'User',
+                },
+                error: null
+            };
+        }
         return { data, error: null };
     } catch (error) {
         console.error('Error fetching profile:', error);

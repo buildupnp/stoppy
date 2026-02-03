@@ -70,7 +70,7 @@
             android:name=".ui.screens.overlay.LockOverlayActivity"
             android:theme="@style/Theme.LifeForge.Overlay"
             android:excludeFromRecents="true"
-            android:showOnLockScreen="true"
+            android:showWhenLocked="true"
             android:turnScreenOn="true"
             android:launchMode="singleInstance"
             android:exported="false" />

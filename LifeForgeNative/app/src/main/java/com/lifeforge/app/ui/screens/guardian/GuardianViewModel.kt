@@ -175,7 +175,7 @@ class GuardianViewModel @Inject constructor(
         }
         
         if (accessibilityEnabled == 1) {
-            val service = "${context.packageName}/${context.packageName}.accessibility.AppDetectorService"
+            val service = "${context.packageName}/${com.lifeforge.app.accessibility.AppDetectorService::class.java.name}"
             val settingValue = Settings.Secure.getString(
                 context.contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
