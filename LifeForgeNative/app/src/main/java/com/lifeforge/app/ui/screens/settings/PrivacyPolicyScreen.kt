@@ -86,36 +86,60 @@ fun PrivacyPolicyScreen(
                     ) {
                         PolicySection(
                             title = "1. Data Collection & Usage",
-                            content = "Stoppy (LifeForge) collects minimal user data to function. We store your email, name, and activity statistics (steps, workouts, coins) securely on Supabase. This data is used solely to synchronize your progress across devices and provide the app's core gamification features. We do NOT sell your data to third parties.",
+                            content = "LifeForge (Stoppy) is designed to work with minimal data. If you create an account, we may store your email address, display name, and app-specific progress (coins, activities, blocked apps, unlock sessions, streaks, achievements, and preferences). This data is used to provide the core app experience and (when enabled) to sync your progress across devices. We do not sell your personal data.",
                             isDark = isDark
                         )
                         
                         PolicySection(
                             title = "2. Accessibility Service",
-                            content = "Our app uses the Android AccessibilityService API to detect when you open specific apps that you have chosen to block. This is the core functionality of the app (App Blocker). The service is used strictly to identify the foreground package name to determine if it matches a blocked app. We do NOT use this service to read your screen content, keystrokes, or any other personal information.",
+                            content = "LifeForge uses the Android AccessibilityService API to detect the currently foreground app package name so we can enforce blocks you configured. We use it to: (a) detect when a blocked app is opened, and (b) display the lock overlay so you can unlock with coins or earn time via exercise. We do not use Accessibility to read typed text, passwords, messages, or the contents of other apps.",
                             isDark = isDark
                         )
                         
                         PolicySection(
                             title = "3. Camera Usage",
-                            content = "The Camera is used exclusively for the AI Workout feature to count your push-ups and squats using pose detection. This processing happens entirely LOCALLY on your device using MediaPipe. No video or image data is ever recorded, stored, or transmitted to any server.",
+                            content = "Camera access is used only when you start an AI Workout session (push-ups/squats) to detect reps. Pose detection runs on-device. LifeForge does not record video, store photos, or upload camera frames for this feature.",
                             isDark = isDark
                         )
 
                         PolicySection(
-                            title = "4. App Usage Stats",
-                            content = "We use the 'Usage Access' permission to track how much time you spend in apps to generate the 'Focus Impact' reports. This data is stored locally and synced to your own private database record for your personal statistics. It is not shared with anyone.",
+                            title = "4. Usage Access (App Usage Stats)",
+                            content = "If you grant Usage Access, LifeForge can read app usage statistics so it can show app usage time and related insights (e.g., usage today). This information is used only for the features inside the app and is not sold.",
                             isDark = isDark
                         )
 
                         PolicySection(
-                            title = "5. Account Deletion",
-                            content = "You have the right to request the deletion of your account and all associated data at any time. You can do this by contacting support or using the 'Delete Account' option in the settings if available.",
+                            title = "5. Overlay & Foreground Services",
+                            content = "LifeForge may request permission to display over other apps (overlay) to show the lock screen on top of blocked apps. It may also run foreground services to keep step tracking and app monitoring reliable in the background (these may show persistent notifications depending on Android version and device settings).",
+                            isDark = isDark
+                        )
+
+                        PolicySection(
+                            title = "6. Activity Recognition (Step Tracking)",
+                            content = "If you enable step tracking, LifeForge uses activity recognition/step sensors to estimate steps so you can earn coins. Step counting is used for the app’s reward system and statistics. You can disable these permissions in Android settings at any time.",
+                            isDark = isDark
+                        )
+
+                        PolicySection(
+                            title = "7. In-App Notifications",
+                            content = "LifeForge shows in-app notifications related to your actions and progress (for example: welcome, app blocked/unblocked, unlock purchased, workout completed, achievements). These notifications are app content; they are not the same as Android push notifications. They are stored on-device and may be cleared by clearing app data or using in-app controls when available.",
+                            isDark = isDark
+                        )
+
+                        PolicySection(
+                            title = "8. Data Storage, Sharing, and Security",
+                            content = "LifeForge stores some information locally on your device (for example: cached progress, timers, and notifications). If you sign in, some of your data may also be stored in our backend (Supabase) to support syncing and account features. Data is transmitted over encrypted network connections (HTTPS). We do not sell your personal information. We may use third-party infrastructure providers (such as Supabase) to operate the service.",
+                            isDark = isDark
+                        )
+
+                        PolicySection(
+                            title = "9. Your Choices & Account Deletion",
+                            content = "You can disable permissions (Accessibility, Usage Access, Overlay, Camera, Activity Recognition) at any time in Android settings, which may limit features. You may request account deletion by contacting the developer using the support contact shown in the app listing (Google Play).",
                             isDark = isDark
                         )
                         
                         Text(
-                            text = "Last updated: January 2026",
+                            text = "Last updated: February 4, 2026",
                             style = MaterialTheme.typography.labelMedium,
                             color = if (isDark) TextSecondary else TextSecondaryLight,
                             modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
