@@ -14,6 +14,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import com.lifeforge.app.util.XiaomiPermissionHelper
+import com.lifeforge.app.data.model.NotificationItem
+import com.lifeforge.app.data.repository.NotificationRepository
+import java.util.UUID
 
 /**
  * Accessibility Service that monitors which app is in the foreground.
@@ -72,6 +75,9 @@ class AppDetectorService : AccessibilityService() {
     
     @javax.inject.Inject
     lateinit var appLockRepository: com.lifeforge.app.data.repository.AppLockRepository
+
+    @javax.inject.Inject
+    lateinit var notificationRepository: NotificationRepository
     
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var lastDetectedPackage: String? = null
@@ -378,6 +384,21 @@ class AppDetectorService : AccessibilityService() {
     
     private fun showLockOverlay(packageName: String) {
         val appName = getAppName(packageName)
+
+        // In-app notification (debounced) so it reflects real usage, without spamming.
+        notificationRepository.addDebounced(
+            key = "blocked_attempt_$packageName",
+            minIntervalMs = 30 * 60 * 1000L,
+            item = NotificationItem(
+                id = UUID.randomUUID().toString(),
+                title = "Blocked App Attempt",
+                description = "$appName was blocked by Guardian.",
+                icon = "🛡️",
+                createdAtEpochMs = System.currentTimeMillis(),
+                category = "Guardian",
+                isRead = false
+            )
+        )
         
         // MIUI sometimes ignores the first start activity call from background
         // We retry a few times to ensure it shows up

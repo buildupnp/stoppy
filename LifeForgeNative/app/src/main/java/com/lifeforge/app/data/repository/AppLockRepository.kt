@@ -34,6 +34,7 @@ class AppLockRepository @Inject constructor(
     private val appLockDao: AppLockDao,
     private val coinRepository: CoinRepository,
     private val authRepository: AuthRepository,
+    private val notificationRepository: NotificationRepository,
     private val postgrest: io.github.jan.supabase.postgrest.Postgrest,
     private val database: com.lifeforge.app.data.local.database.AppDatabase,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context
@@ -114,6 +115,13 @@ class AppLockRepository @Inject constructor(
                 
                 // Update accessibility service
                 AppDetectorService.addBlockedPackage(packageName)
+
+                notificationRepository.addNotification(
+                    title = "App Blocked",
+                    description = "$name is now protected by Guardian.",
+                    icon = "🛡️",
+                    category = "Guardian"
+                )
                 
                 // Sync to Supabase
                 try {
@@ -145,8 +153,20 @@ class AppLockRepository @Inject constructor(
                 // Update accessibility service
                 if (isBlocked) {
                     AppDetectorService.addBlockedPackage(packageName)
+                    notificationRepository.addNotification(
+                        title = "Blocking Enabled",
+                        description = "Guardian is now blocking ${packageName.split('.').last()}",
+                        icon = "🔒",
+                        category = "Guardian"
+                    )
                 } else {
                     AppDetectorService.removeBlockedPackage(packageName)
+                    notificationRepository.addNotification(
+                        title = "Blocking Disabled",
+                        description = "Guardian is no longer blocking ${packageName.split('.').last()}",
+                        icon = "🔓",
+                        category = "Guardian"
+                    )
                 }
                 
                 Result.success(Unit)
@@ -204,6 +224,13 @@ class AppLockRepository @Inject constructor(
             
             // Immediate update to service state
             com.lifeforge.app.accessibility.AppDetectorService.unlockPackage(packageName, durationMs)
+
+            notificationRepository.addNotification(
+                title = "Time Earned",
+                description = "$appName unlocked for $durationMinutes minutes (workout).",
+                icon = "⏱️",
+                category = "Guardian"
+            )
             
             val expiresAt = System.currentTimeMillis() + durationMs
             
@@ -295,6 +322,13 @@ class AppLockRepository @Inject constructor(
             
             // Immediate update to service state
             com.lifeforge.app.accessibility.AppDetectorService.unlockPackage(app.packageName, durationMs)
+
+            notificationRepository.addNotification(
+                title = "Unlocked",
+                description = "${app.appName} unlocked for $durationMinutes min (-$cost LC).",
+                icon = "🔓",
+                category = "Guardian"
+            )
             
             val expiresAt = System.currentTimeMillis() + durationMs
             

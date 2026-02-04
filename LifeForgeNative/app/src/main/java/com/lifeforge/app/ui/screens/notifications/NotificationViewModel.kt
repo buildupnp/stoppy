@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.lifeforge.app.data.model.NotificationItem
 
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
@@ -24,14 +25,12 @@ class NotificationViewModel @Inject constructor(
     
     fun addNotification(title: String, description: String, icon: String, category: String) {
         viewModelScope.launch {
-            val item = NotificationItem(
+            notificationRepository.addNotification(
                 title = title,
                 description = description,
                 icon = icon,
-                time = "Just now",
                 category = category
             )
-            notificationRepository.addNotification(item)
         }
     }
 }

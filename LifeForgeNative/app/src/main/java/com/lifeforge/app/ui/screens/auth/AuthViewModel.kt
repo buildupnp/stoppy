@@ -1,4 +1,4 @@
-package com.lifeforge.app.ui.screens.auth
+﻿package com.lifeforge.app.ui.screens.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,9 +10,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-import com.lifeforge.app.data.repository.NotificationRepository
-import com.lifeforge.app.ui.screens.notifications.NotificationItem
-
 data class AuthUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
@@ -22,21 +19,20 @@ data class AuthUiState(
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
-    private val notificationRepository: NotificationRepository
+    private val authRepository: AuthRepository
 ) : ViewModel() {
-    
+
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
-    
+
     fun signIn(email: String, password: String) {
         if (!validateSignIn(email, password)) return
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            
+
             val result = authRepository.signIn(email, password)
-            
+
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(isLoading = false, isAuthenticated = true)
             } else {
@@ -62,29 +58,20 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun signUp(name: String, email: String, password: String, isPolicyAccepted: Boolean) {
         if (!validateSignUp(name, email, password, isPolicyAccepted)) return
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null, successMessage = null)
-            
+
             val result = authRepository.signUp(email, password, name)
-            
+
             if (result.isSuccess) {
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false, 
+                    isLoading = false,
                     successMessage = "Account created successfully! Welcome to LifeForge!",
                     isAuthenticated = true
-                )
-                notificationRepository.addNotification(
-                    NotificationItem(
-                        title = "Welcome $name!",
-                        description = "Your productivity journey starts now.",
-                        icon = "👋",
-                        time = "Just now",
-                        category = "General"
-                    )
                 )
             } else {
                 _uiState.value = _uiState.value.copy(
@@ -94,7 +81,7 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
-    
+
     private fun validateSignIn(email: String, password: String): Boolean {
         if (email.isBlank()) {
             setError("Please enter your email address")
@@ -142,7 +129,7 @@ class AuthViewModel @Inject constructor(
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
-    
+
     fun setError(message: String) {
         _uiState.value = _uiState.value.copy(error = message)
     }

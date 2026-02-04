@@ -25,7 +25,8 @@ class ActivityRepository @Inject constructor(
     private val coinRepository: CoinRepository,
     private val authRepository: AuthRepository,
     private val postgrest: io.github.jan.supabase.postgrest.Postgrest,
-    private val soundManager: com.lifeforge.app.util.SoundManager
+    private val soundManager: com.lifeforge.app.util.SoundManager,
+    private val notificationRepository: NotificationRepository
 ) {
     
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
@@ -56,6 +57,12 @@ class ActivityRepository @Inject constructor(
             // Play Sound
             if (coinsEarned > 0) {
                  soundManager.playCoinSound()
+                 notificationRepository.addNotification(
+                     title = "Workout Complete",
+                     description = "Logged $count push-ups (+$coinsEarned LC).",
+                     icon = "💪",
+                     category = "Coins"
+                 )
             }
             
             // Try to sync to Supabase (unchanged)
@@ -97,6 +104,12 @@ class ActivityRepository @Inject constructor(
             // Play Sound
             if (coinsEarned > 0) {
                  soundManager.playCoinSound()
+                 notificationRepository.addNotification(
+                     title = "Workout Complete",
+                     description = "Logged $count squats (+$coinsEarned LC).",
+                     icon = "🏋️",
+                     category = "Coins"
+                 )
             }
             
             // Sync to Supabase
@@ -139,6 +152,16 @@ class ActivityRepository @Inject constructor(
                 type = "earned_steps",
                 description = "Earned $coinsEarned LC from $steps steps"
             )
+
+            // Avoid spamming: notify only on meaningful step milestones (>= 10 coins = 1,000 steps).
+            if (coinsEarned >= 10) {
+                notificationRepository.addNotification(
+                    title = "Steps Synced",
+                    description = "You earned +$coinsEarned LC from walking.",
+                    icon = "👟",
+                    category = "Coins"
+                )
+            }
 
             // Play Sound
             if (coinsEarned > 0) {

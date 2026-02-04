@@ -1,4 +1,4 @@
-package com.lifeforge.app.data.repository
+﻿package com.lifeforge.app.data.repository
 
 import com.lifeforge.app.data.local.database.dao.FeatureDao
 import com.lifeforge.app.data.local.database.entities.Achievement
@@ -190,15 +190,7 @@ class FeatureRepository @Inject constructor(
                 type = "achievement",
                 description = "Achievement: ${achievement.title}"
             )
-            notificationRepository.addNotification(
-                com.lifeforge.app.ui.screens.notifications.NotificationItem(
-                    title = "Achievement Unlocked!",
-                    description = "You earned ${achievement.coinReward} coins: ${achievement.title}",
-                    icon = "🏆",
-                    time = "Just now",
-                    category = "Achievement"
-                )
-            )
+            notificationRepository.addNotification(\n                title = "Achievement Unlocked!",\n                description = "You earned ${achievement.coinReward} coins: ${achievement.title}",\n                icon = "🏆",\n                category = "Achievement"\n            )
             return@withContext achievement.coinReward
         }
         
@@ -362,3 +354,4 @@ class FeatureRepository @Inject constructor(
         featureDao.updatePreferences(preferences)
     }
 }
+

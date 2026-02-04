@@ -2,6 +2,7 @@ package com.lifeforge.app.data.repository
 
 import com.lifeforge.app.data.remote.UserProfileDto
 import com.lifeforge.app.data.remote.UserSettingsDto
+import com.lifeforge.app.data.model.NotificationItem
 import io.github.jan.supabase.gotrue.auth
 import io.github.jan.supabase.gotrue.providers.builtin.Email
 import io.github.jan.supabase.gotrue.providers.builtin.IDToken
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,7 +26,8 @@ class AuthRepository @Inject constructor(
     private val auth: io.github.jan.supabase.gotrue.Auth,
     private val postgrest: io.github.jan.supabase.postgrest.Postgrest,
     @dagger.hilt.android.qualifiers.ApplicationContext private val context: android.content.Context,
-    private val coinRepository: CoinRepository
+    private val coinRepository: CoinRepository,
+    private val notificationRepository: NotificationRepository
 ) {
     // ... (rest of class) ...
 
@@ -56,6 +59,20 @@ class AuthRepository @Inject constructor(
             // Mark as received so we don't repeat the check
             prefs.edit().putBoolean("has_received_signup_bonus_$userId", true).apply()
         }
+
+        // One-time welcome notification (in-app, not system)
+        notificationRepository.addOnce(
+            key = "welcome_$userId",
+            item = NotificationItem(
+                id = UUID.randomUUID().toString(),
+                title = "Welcome to LifeForge",
+                description = "Your forge is ready. Set up Guardian to start blocking distractions.",
+                icon = "👋",
+                createdAtEpochMs = System.currentTimeMillis(),
+                category = "General",
+                isRead = false
+            )
+        )
     }
     
     private val _currentUser = MutableStateFlow<UserState>(UserState.Loading)
